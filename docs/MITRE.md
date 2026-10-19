@@ -19,4 +19,18 @@ MITRE D3FEND est une base de connaissances qui standardisent l'ensemble des tech
 Alors qu'ATT&CK décrit comment un attaquant agit, d3FEND décrit formellement comment un système se défend et modélise les relations logiques entre les composants du système d'information, les menaces et les mécanismes de protection. 
 
 D3FEND est découpé en 6 grandes tactiques défensives contenant chacune des techniques concrètes : 
-- Modéliser : cartographier les actifs, les 
+- Modéliser : cartographier les actifs, les topologies réseau et les dépendances du SI.
+- Détecter : analyser les flux et les comportements suspects.
+- Isoler : confiner une ressource suspecte ou compromise pour stopper la propagation.
+- Tromper : induire l'attaquant en erreur ou le piéder.
+- Expulser : supprimer l'attaquant du système.
+
+Rôles dans le projet : 
+Le sujet impose 5 capacités de réaction au système. Elles correspondent directement à des points de D3FEND : 
+1. alerting --> notification et rapport contextualisé vers l'opérateur humain
+2. quarantaire --> isolation réseau d'une machine, d'un conteneur ou d'un utilisateur compromis
+3. reconfiguration filtrante --> modification dynamique des règles de pare-feu
+4. patching --> application automatisée ou assistée de correctifs logiciels et de mises à jour sur les machines vulnérables identifiées
+5. instrumentation à la demande --> déploiement dynamique d'un collecteur ou sniffer réseau pour approfondir une suspicion sans impacter la production
+
+D3FEND est conçu pour s'interfacer avec ATT&CK.
