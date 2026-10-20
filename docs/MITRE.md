@@ -68,3 +68,9 @@ Inspiré directement de la structure matricielle d'ATT&CK, il formalise comment 
 * Le projet pose la question de la confiance accordée à une défense autonome. Il est impératif de protéger le réseau avec les agents mais aussi de protéger les agents contre des manipulations adverses.
 * L'Agent Perception prend des flux et des logs bruts, un attaquant pourrait y insérer une invite malveillante (*Indirect Prompt Injection*) pour fausser le résultat de l'Agent Décision et forcer l'Agent Action à couper une machine saine du réseau.
 * ATLAS illustre les dérives possibles lors des invocations d'outils système (*AI Agent Tool Invocation*), ce qui justifie la mise en place d'un arrêt d'urgence (*kill switch*), de fonctions de rollback et de la matrice d'autonomie (L0 à L4) pour éviter les fausses actions destructrices.
+
+Source : 
+https://attack.mitre.org/
+https://d3fend.mitre.org/
+https://atlas.mitre.org/
+
