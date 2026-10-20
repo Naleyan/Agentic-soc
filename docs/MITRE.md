@@ -18,8 +18,9 @@
 * Le cadre des scénarios d'attaque suivra les 4 scénarios offensifs de test imposés en phase 1.
 * La métrique d'évaluation sert à mesurer le taux d'efficacité du système :
 
+"""
 $$\text{Couverture ATT\&CK} = \frac{\text{Nombre de techniques détectées par l'agent}}{\text{Nombre de techniques réellement jouées dans les tests}}$$
-
+"""
 ---
 
 ## 2. MITRE D3FEND (Taxonomie défensive)
