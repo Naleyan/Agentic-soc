@@ -19,7 +19,7 @@
 * La métrique d'évaluation sert à mesurer le taux d'efficacité du système :
 
 
-$$\text{Couverture ATT and CK} = \frac{\text{Nombre de techniques détectées par l'agent}}{\text{Nombre de techniques réellement jouées dans les tests}}$$
+$$\text{Couverture ATTACK} = \frac{\text{Nombre de techniques détectées par l'agent}}{\text{Nombre de techniques réellement jouées dans les tests}}$$
 
 ---
 
