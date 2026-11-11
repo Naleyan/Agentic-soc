@@ -3,43 +3,41 @@
 ## Semaine du 20 au 26 octobre
 
 **Décisions prises :**
-- Découpage en 3 binômes par chantier (Plateforme / Agents / Red team & éval) plutôt que par étape, pour avancer en parallèle
-- ATT&CK et D3FEND adoptés comme langage commun du projet
+- Organisation de l'équipe : découpage en 3 binômes par chantier (Plateforme / Agents / Red team & évaluation) plutôt que par étape du sujet, pour avancer en parallèle
 
 **Impasses rencontrées :**
 - —
 
-**Temps passé :** ~4 h/pers — cadrage, glossaire, premières lectures
+**Temps passé :** ~4 h/pers — cadrage, glossaire des termes, premières lectures
 
 ## Semaine du 27 octobre au 2 novembre
 
 **Décisions prises :**
-- LangGraph pressenti comme framework (contrôle du flux, traçabilité, validation humaine natifs)
-- AutoGen écarté (mode maintenance depuis fin 2025) ; MAF écarté (orienté .NET/Azure, hors de notre périmètre Python)
+- Framework d'agents : LangGraph pressenti (contrôle du flux, traçabilité et validation humaine natifs) ; AutoGen écarté (mode maintenance depuis fin 2025) 
 
 **Impasses rencontrées :**
-- Premières sections rédigées sans sources — à réétayer entièrement (retour prof)
+- Note de cadrage : premières sections rédigées sans sources — à réétayer entièrement (retour du prof)
 
-**Temps passé :** ~5 h/pers — état de l'art, scénarios, métriques, matrice v1
+**Temps passé :** ~7 h/pers — état de l'art, scénarios d'attaque, métriques, matrice d'autonomie v1
 
 ## Semaine du 3 au 9 novembre
 
 **Décisions prises :**
-- Plan réorganisé en 2 parties (État de l'art / Conception) pour supprimer les allers-retours de thèmes signalés par le prof dans la note de cadrage 
-- Ajout d'une section Plateforme et d'une section Architecture dans la note de cadrage
+- Note de cadrage : ajout d'une section Plateforme
+- Scénarios d'attaque : ajout d'un 4ᵉ scénario (ransomware simulé, T1486) pour couvrir la tactique Impact
 
 **Impasses rencontrées :**
-- Chiffres d'études cités à vérifier à la source avant de les conserver (demande du prof)
+- Note de cadrage, analyse critique : chiffres d'études cités à vérifier à la source avant de les conserver (demande du prof)
 
-**Temps passé :** ~7 h/pers — corrections de la note de cadrage
+**Temps passé :** ~5 h/pers — corrections de la note de cadrage suite aux retours
 
 ## Semaine du 10 au 16 novembre
 
 **Décisions prises :**
-- Communication inter-agents par état partagé (LangGraph), pas de message bus — flux séquentiel, traçabilité, complexité évitée
-- Développement incrémental : squelette déterministe de bout en bout d'abord, LLM ajouté seulement quand une règle ne suffit plus
-- Perception en règles (pas de LLM) car elle lit des logs en partie contrôlés par l'attaquant (risque d'injection, ATLAS)
+- Architecture des agents : début de la conception de l'architecture multi-agents (6 agents : Perception, Corrélation, Investigation, Décision, Action, Mémoire/Audit) ; premier schéma produit
+- Architecture des agents : développement incrémental retenu — squelette déterministe de bout en bout d'abord, LLM ajouté seulement quand une règle ne suffit plus
+- Architecture des agents : l'agent Perception restera en règles (pas de LLM), car il lit des logs en partie contrôlés par l'attaquant (risque d'injection de prompt, référentiel ATLAS)
 
 **Impasses rencontrées :**
 
-**Temps passé :**
+**Temps passé :** 
