@@ -37,6 +37,7 @@
 - Architecture des agents : début de la conception de l'architecture multi-agents (6 agents : Perception, Corrélation, Investigation, Décision, Action, Mémoire/Audit) ; premier schéma produit
 - Architecture des agents : développement incrémental retenu — squelette déterministe de bout en bout d'abord, LLM ajouté seulement quand une règle ne suffit plus
 - Architecture des agents : l'agent Perception restera en règles (pas de LLM), car il lit des logs en partie contrôlés par l'attaquant (risque d'injection de prompt, référentiel ATLAS)
+- Implémentation des VLAN de la plateforme d'expérimentation
 
 **Impasses rencontrées :**
 
