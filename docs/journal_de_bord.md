@@ -39,6 +39,18 @@
 - Architecture des agents : l'agent Perception restera en règles (pas de LLM), car il lit des logs en partie contrôlés par l'attaquant (risque d'injection de prompt, référentiel ATLAS)
 - Implémentation des VLAN de la plateforme d'expérimentation
 
+*Équipe agents d'IA :*
+- Perception et Corrélation en règles déterministes, sans LLM : résultats reproductibles et explicables, comme l'exige un SOC
+- Perception lit les alertes JSON de Wazuh (seule source de vérité de l'architecture v2) et les traduit en une « fiche événement » unique (`docs/event_schema.md`) : des faits, pas d'interprétation
+- Corrélation : un incident progresse en 3 étapes, `attempt` (T1110), `compromise` (T1078) puis `persistence` (T1053), pour enchaîner les événements au lieu de re-détecter ce que Wazuh voit déjà
+- Seuil de force brute : 5 échecs en 10 minutes, réglage par défaut de fail2ban ; le score de confiance du prototype, arbitraire, est supprimé pour limiter les fausses actions
+- Tests sans Wazuh, sur alertes simulées : 26 tests réussis ; l'attaque du scénario 1 donne 1 incident, le trafic légitime 0
+
 **Impasses rencontrées :**
+
+*Équipe agents d'IA :*
+- Alertes Wazuh simulées à la main : format et numéros de règles à confirmer sur la vraie plateforme ; MTTD et MTTR non mesurables pour l'instant
+- Jeu de test trop petit (2 fichiers) pour annoncer un taux de détection ou de faux positifs
+- Incohérences entre documents à harmoniser : 3 plans d'adressage IP et 2 échelles d'autonomie (L0–L4 et N0–N3)
 
 **Temps passé :** 
