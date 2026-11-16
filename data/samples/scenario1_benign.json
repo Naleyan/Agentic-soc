@@ -1,0 +1,40 @@
+{
+  "note": "ALERTES SYNTHETIQUES ecrites a la main, au format Wazuh simplifie. Trafic LEGITIME : un administrateur se trompe une fois de mot de passe depuis le VLAN MGMT, puis reussit. Aucun incident ne doit etre leve.",
+  "label": "benign",
+  "alerts": [
+    {
+      "timestamp": "2026-11-15T09:02:11.320+0000",
+      "rule": {
+        "id": "5716",
+        "level": 5,
+        "description": "sshd: authentication failed.",
+        "groups": ["syslog", "sshd", "authentication_failed"],
+        "mitre": { "id": ["T1110"] }
+      },
+      "agent": { "id": "001", "name": "web01", "ip": "10.10.30.10" },
+      "manager": { "name": "wazuh01" },
+      "id": "1794733331.0901",
+      "decoder": { "name": "sshd" },
+      "data": { "srcip": "10.10.10.20", "srcport": "40112", "dstuser": "sysadmin" },
+      "full_log": "Nov 15 09:02:11 web01 sshd[812]: Failed password for sysadmin from 10.10.10.20 port 40112 ssh2",
+      "location": "/var/log/auth.log"
+    },
+    {
+      "timestamp": "2026-11-15T09:02:19.754+0000",
+      "rule": {
+        "id": "5715",
+        "level": 3,
+        "description": "sshd: authentication success.",
+        "groups": ["syslog", "sshd", "authentication_success"],
+        "mitre": { "id": ["T1078", "T1021"] }
+      },
+      "agent": { "id": "001", "name": "web01", "ip": "10.10.30.10" },
+      "manager": { "name": "wazuh01" },
+      "id": "1794733339.0902",
+      "decoder": { "name": "sshd" },
+      "data": { "srcip": "10.10.10.20", "srcport": "40114", "dstuser": "sysadmin" },
+      "full_log": "Nov 15 09:02:19 web01 sshd[813]: Accepted password for sysadmin from 10.10.10.20 port 40114 ssh2",
+      "location": "/var/log/auth.log"
+    }
+  ]
+}

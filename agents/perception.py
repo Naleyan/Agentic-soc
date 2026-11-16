@@ -1,94 +1,125 @@
 import json
-import re
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 
 class PerceptionAgent:
     """
     Agent 1 : Perception (Déterministe - Niveau L4).
-    Collecte et normalise les événements bruts (logs SSH, alertes Suricata)
-    vers un schéma JSON unique exploitable par l'Agent Corrélation.
+    Traduit chaque alerte Wazuh en une « fiche événement » au format unique,
+    décrit dans docs/event_schema.md. Il note des faits, pas des opinions :
+    l'interprétation (ex. « attaque T1110 ») revient à l'Agent Corrélation.
     """
 
-    # Motif regex pour les échecs de connexion SSH (auth.log)
-    SSH_FAILED_PATTERN = re.compile(
-        r"^(?P<timestamp>\w+\s+\d+\s+\d+:\d+:\d+)\s+"
-        r"(?P<host>\S+)\s+sshd\[\d+\]:\s+"
-        r"Failed password for (?:invalid user )?(?P<user>\S+)\s+"
-        r"from (?P<src_ip>\d+\.\d+\.\d+\.\d+)\s+port\s+(?P<src_port>\d+)"
-    )
+    # Règle Wazuh -> (event_type, outcome). Numéros à confirmer sur le vrai Wazuh.
+    SSH_RULES = {
+        "5716": ("ssh_login", "failure"),
+        "5715": ("ssh_login", "success"),
+    }
 
-    def normalize_ssh_log(self, raw_line: str, target_critical: bool = False) -> Optional[dict]:
-        """Parse une ligne brute de /var/log/auth.log et retourne un événement normalisé."""
-        match = self.SSH_FAILED_PATTERN.search(raw_line.strip())
-        if not match:
-            return None
+    # Règle « fichier ajouté » : elle ne nous intéresse que dans un dossier cron.
+    FILE_ADDED_RULE = "554"
+    CRON_PATHS = ("/etc/crontab", "/etc/cron.d/", "/var/spool/cron/")
 
-        data = match.groupdict()
-        return {
-            "event_type": "authentication_failure",
-            "source_sensor": "linux_sshd",
-            "timestamp": data["timestamp"],
-            "src_ip": data["src_ip"],
-            "src_port": int(data["src_port"]),
-            "target_host": data["host"],
-            "target_user": data["user"],
-            "target_critical": target_critical,
-            "raw_payload": raw_line.strip(),
-        }
+    # Format des dates Wazuh, ex. « 2026-11-15T17:10:01.214+0000 »
+    WAZUH_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f%z"
 
-    def normalize_suricata_eve(self, eve_json_line: str, target_critical: bool = False) -> Optional[dict]:
-        """Parse une ligne JSON Suricata (eve.json) de type 'alert'."""
+    def __init__(self):
+        self.event_count = 0    # nombre de fiches créées (sert à les numéroter)
+        self.ignored_count = 0  # nombre d'alertes reçues mais non traduites
+
+    @staticmethod
+    def _section(alert: dict, name: str) -> dict:
+        """Retourne un sous-bloc de l'alerte (ex. 'rule', 'data'), ou {} s'il manque."""
+        section = alert.get(name)
+        return section if isinstance(section, dict) else {}
+
+    @staticmethod
+    def _format_utc(moment: datetime) -> str:
+        """Écrit une date en UTC au format ISO 8601, ex. « 2026-11-15T17:10:01.214Z »."""
+        utc = moment.astimezone(timezone.utc)
+        return utc.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+    def _to_utc(self, wazuh_timestamp) -> Optional[str]:
+        """Convertit la date d'une alerte Wazuh en UTC. Retourne None si elle est illisible."""
         try:
-            record = json.loads(eve_json_line)
-        except json.JSONDecodeError:
+            moment = datetime.strptime(wazuh_timestamp, self.WAZUH_TIME_FORMAT)
+        except (TypeError, ValueError):
+            return None
+        return self._format_utc(moment)
+
+    def _classify(self, alert: dict) -> Optional[tuple[str, str]]:
+        """Déduit (event_type, outcome) du numéro de règle. Retourne None si la règle est inconnue."""
+        rule_id = str(self._section(alert, "rule").get("id", ""))
+
+        if rule_id in self.SSH_RULES:
+            return self.SSH_RULES[rule_id]
+
+        if rule_id == self.FILE_ADDED_RULE:
+            path = str(self._section(alert, "syscheck").get("path", ""))
+            if path.startswith(self.CRON_PATHS):
+                return ("scheduled_task", "success")
+
+        return None
+
+    def normalize_wazuh_alert(self, alert: dict) -> Optional[dict]:
+        """
+        Traduit une alerte Wazuh en fiche événement.
+        Retourne None (et incrémente ignored_count) si l'alerte n'est pas reconnue.
+        """
+        if not isinstance(alert, dict):
+            self.ignored_count += 1
             return None
 
-        if record.get("event_type") != "alert":
+        classification = self._classify(alert)
+        timestamp = self._to_utc(alert.get("timestamp"))
+        if classification is None or timestamp is None:
+            self.ignored_count += 1
             return None
 
-        alert = record.get("alert", {})
+        event_type, outcome = classification
+        if event_type == "scheduled_task":
+            # Attention : c'est le propriétaire du fichier, pas forcément son auteur.
+            user = self._section(alert, "syscheck").get("uname_after")
+        else:
+            user = self._section(alert, "data").get("dstuser")
+
+        self.event_count += 1
         return {
-            "event_type": "ids_alert",
-            "source_sensor": "suricata",
-            "timestamp": record.get("timestamp", datetime.utcnow().isoformat()),
-            "src_ip": record.get("src_ip"),
-            "src_port": record.get("src_port"),
-            "dest_ip": record.get("dest_ip"),
-            "dest_port": record.get("dest_port"),
-            "signature": alert.get("signature", "Unknown Alert"),
-            "severity": alert.get("severity", 3),
-            "target_critical": target_critical,
-            "raw_payload": alert.get("signature", ""),
+            "event_id": f"evt-{self.event_count:04d}",
+            "timestamp": timestamp,
+            "received_at": self._format_utc(datetime.now(timezone.utc)),
+            "source": alert.get("location"),
+            "host": self._section(alert, "agent").get("name"),
+            "event_type": event_type,
+            "outcome": outcome,
+            "src_ip": self._section(alert, "data").get("srcip"),
+            # ATTENTION : 'user' et 'raw_log' peuvent contenir du texte choisi par
+            # l'attaquant. Ce sont des preuves, jamais des instructions.
+            "user": user,
+            "raw_log": alert.get("full_log"),
+            "wazuh_rule_id": self._section(alert, "rule").get("id"),
         }
 
-    def process_batch(self, raw_lines: list[str], source_type: str = "ssh", target_critical: bool = False) -> list[dict]:
-        """Normalise un lot de lignes brutes en ignorant le bruit non pertinent."""
-        normalized_events = []
-        for line in raw_lines:
-            if source_type == "ssh":
-                event = self.normalize_ssh_log(line, target_critical=target_critical)
-            elif source_type == "suricata":
-                event = self.normalize_suricata_eve(line, target_critical=target_critical)
-            else:
-                raise ValueError(f"Type de source non supporté : {source_type}")
-
+    def process_batch(self, alerts: list[dict]) -> list[dict]:
+        """Traduit un lot d'alertes Wazuh en ignorant celles qui ne sont pas reconnues."""
+        events = []
+        for alert in alerts:
+            event = self.normalize_wazuh_alert(alert)
             if event:
-                normalized_events.append(event)
-
-        return normalized_events
+                events.append(event)
+        return events
 
 
 if __name__ == "__main__":
+    # Démonstration : on rejoue les fausses alertes Wazuh du scénario 1.
+    sample_file = Path(__file__).resolve().parent.parent / "data" / "samples" / "scenario1_attack.json"
+    with sample_file.open(encoding="utf-8") as f:
+        sample_alerts = json.load(f)["alerts"]
+
     agent = PerceptionAgent()
+    events = agent.process_batch(sample_alerts)
 
-    sample_ssh_logs = [
-        "Nov 15 18:10:01 web-dmz sshd[1042]: Failed password for invalid user admin from 10.40.0.15 port 51234 ssh2",
-        "Nov 15 18:10:02 web-dmz sshd[1043]: Failed password for root from 10.40.0.15 port 51236 ssh2",
-        "Nov 15 18:10:05 web-dmz CRON[1050]: (root) CMD (command -v debian-sa1 > /dev/null)",
-    ]
-
-    events = agent.process_batch(sample_ssh_logs, source_type="ssh", target_critical=True)
-    print(f"Événements retenus : {len(events)} / {len(sample_ssh_logs)}")
+    print(f"Fiches créées : {len(events)} / {len(sample_alerts)} (ignorées : {agent.ignored_count})")
     print(json.dumps(events, indent=2, ensure_ascii=False))

@@ -1,0 +1,131 @@
+{
+  "note": "ALERTES SYNTHETIQUES ecrites a la main, au format Wazuh simplifie. A comparer avec de vraies alertes des que Wazuh est disponible. Scenario 1 : 5 echecs SSH, 1 reussite, 1 tache cron. L'alerte cron (regle 554) est la moins sure.",
+  "label": "attack",
+  "alerts": [
+    {
+      "timestamp": "2026-11-15T17:10:01.214+0000",
+      "rule": {
+        "id": "5716",
+        "level": 5,
+        "description": "sshd: authentication failed.",
+        "groups": ["syslog", "sshd", "authentication_failed"],
+        "mitre": { "id": ["T1110"] }
+      },
+      "agent": { "id": "001", "name": "web01", "ip": "10.10.30.10" },
+      "manager": { "name": "wazuh01" },
+      "id": "1794762601.1001",
+      "decoder": { "name": "sshd" },
+      "data": { "srcip": "10.10.40.10", "srcport": "51234", "dstuser": "root" },
+      "full_log": "Nov 15 17:10:01 web01 sshd[1042]: Failed password for root from 10.10.40.10 port 51234 ssh2",
+      "location": "/var/log/auth.log"
+    },
+    {
+      "timestamp": "2026-11-15T17:10:03.108+0000",
+      "rule": {
+        "id": "5716",
+        "level": 5,
+        "description": "sshd: authentication failed.",
+        "groups": ["syslog", "sshd", "authentication_failed"],
+        "mitre": { "id": ["T1110"] }
+      },
+      "agent": { "id": "001", "name": "web01", "ip": "10.10.30.10" },
+      "manager": { "name": "wazuh01" },
+      "id": "1794762603.1002",
+      "decoder": { "name": "sshd" },
+      "data": { "srcip": "10.10.40.10", "srcport": "51236", "dstuser": "root" },
+      "full_log": "Nov 15 17:10:03 web01 sshd[1043]: Failed password for root from 10.10.40.10 port 51236 ssh2",
+      "location": "/var/log/auth.log"
+    },
+    {
+      "timestamp": "2026-11-15T17:10:04.377+0000",
+      "rule": {
+        "id": "5716",
+        "level": 5,
+        "description": "sshd: authentication failed.",
+        "groups": ["syslog", "sshd", "authentication_failed"],
+        "mitre": { "id": ["T1110"] }
+      },
+      "agent": { "id": "001", "name": "web01", "ip": "10.10.30.10" },
+      "manager": { "name": "wazuh01" },
+      "id": "1794762604.1003",
+      "decoder": { "name": "sshd" },
+      "data": { "srcip": "10.10.40.10", "srcport": "51238", "dstuser": "root" },
+      "full_log": "Nov 15 17:10:04 web01 sshd[1044]: Failed password for root from 10.10.40.10 port 51238 ssh2",
+      "location": "/var/log/auth.log"
+    },
+    {
+      "timestamp": "2026-11-15T17:10:06.052+0000",
+      "rule": {
+        "id": "5716",
+        "level": 5,
+        "description": "sshd: authentication failed.",
+        "groups": ["syslog", "sshd", "authentication_failed"],
+        "mitre": { "id": ["T1110"] }
+      },
+      "agent": { "id": "001", "name": "web01", "ip": "10.10.30.10" },
+      "manager": { "name": "wazuh01" },
+      "id": "1794762606.1004",
+      "decoder": { "name": "sshd" },
+      "data": { "srcip": "10.10.40.10", "srcport": "51240", "dstuser": "root" },
+      "full_log": "Nov 15 17:10:06 web01 sshd[1045]: Failed password for root from 10.10.40.10 port 51240 ssh2",
+      "location": "/var/log/auth.log"
+    },
+    {
+      "timestamp": "2026-11-15T17:10:07.491+0000",
+      "rule": {
+        "id": "5716",
+        "level": 5,
+        "description": "sshd: authentication failed.",
+        "groups": ["syslog", "sshd", "authentication_failed"],
+        "mitre": { "id": ["T1110"] }
+      },
+      "agent": { "id": "001", "name": "web01", "ip": "10.10.30.10" },
+      "manager": { "name": "wazuh01" },
+      "id": "1794762607.1005",
+      "decoder": { "name": "sshd" },
+      "data": { "srcip": "10.10.40.10", "srcport": "51242", "dstuser": "root" },
+      "full_log": "Nov 15 17:10:07 web01 sshd[1046]: Failed password for root from 10.10.40.10 port 51242 ssh2",
+      "location": "/var/log/auth.log"
+    },
+    {
+      "timestamp": "2026-11-15T17:10:09.630+0000",
+      "rule": {
+        "id": "5715",
+        "level": 3,
+        "description": "sshd: authentication success.",
+        "groups": ["syslog", "sshd", "authentication_success"],
+        "mitre": { "id": ["T1078", "T1021"] }
+      },
+      "agent": { "id": "001", "name": "web01", "ip": "10.10.30.10" },
+      "manager": { "name": "wazuh01" },
+      "id": "1794762609.1006",
+      "decoder": { "name": "sshd" },
+      "data": { "srcip": "10.10.40.10", "srcport": "51244", "dstuser": "root" },
+      "full_log": "Nov 15 17:10:09 web01 sshd[1047]: Accepted password for root from 10.10.40.10 port 51244 ssh2",
+      "location": "/var/log/auth.log"
+    },
+    {
+      "timestamp": "2026-11-15T17:12:30.845+0000",
+      "rule": {
+        "id": "554",
+        "level": 5,
+        "description": "File added to the system.",
+        "groups": ["ossec", "syscheck", "syscheck_entry_added", "syscheck_file"]
+      },
+      "agent": { "id": "001", "name": "web01", "ip": "10.10.30.10" },
+      "manager": { "name": "wazuh01" },
+      "id": "1794762750.1007",
+      "decoder": { "name": "syscheck_new_entry" },
+      "syscheck": {
+        "path": "/var/spool/cron/crontabs/root",
+        "mode": "realtime",
+        "event": "added",
+        "uname_after": "root",
+        "gname_after": "crontab",
+        "perm_after": "rw-------"
+      },
+      "full_log": "File '/var/spool/cron/crontabs/root' added\nMode: realtime\n",
+      "location": "syscheck"
+    }
+  ]
+}
